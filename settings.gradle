@@ -1,0 +1,29 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+
+plugins {
+    id("io.github.5hmlA.replace") version "0.0.1"
+}
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("wings") {
+            from(files("gradle/wings.versions.toml"))
+        }
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "ksp-gene"
+include ':app'
+include ':net-repository-anno'
+include ':net-repository'

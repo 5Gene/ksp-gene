@@ -1,0 +1,17 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.Ksptt" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.Ksptt.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Ksptt.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Ksptt.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>
