@@ -35,7 +35,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.5.0")
 }
 
-group = "io.github.zgenes"
+group = "io.github.5gene"
 version = "0.0.1"
 
 publishMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀", "java")
