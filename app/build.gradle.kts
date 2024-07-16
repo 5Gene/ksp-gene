@@ -15,7 +15,8 @@ android {
 }
 
 dependencies {
-    ksp(project(":net-repository-anno"))
+    implementation(project(":net-repository-anno"))
+    ksp(project(":net-repository"))
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     implementation(libs.bundles.compose)
@@ -23,7 +24,6 @@ dependencies {
     testImplementation(libs.test.junit)
     androidTestImplementation(libs.bundles.androidx.benchmark)
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
-    implementation(":net-repository-anno")
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     implementation("com.squareup.retrofit2:retrofit:2.5.0")
 

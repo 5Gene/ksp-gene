@@ -6,11 +6,6 @@ pluginManagement {
     }
 }
 
-
-plugins {
-    id("io.github.5hmlA.replace") version "0.0.1"
-}
-
 dependencyResolutionManagement {
     versionCatalogs {
         create("wings") {

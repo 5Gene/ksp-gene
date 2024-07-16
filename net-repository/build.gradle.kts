@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(wings.plugins.android)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -22,13 +23,16 @@ dependencies {
     implementation(libs.ksp.process.api)
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     implementation(libs.google.auto.service.anno)
+    ksp(wings.auto.service)
     implementation("com.squareup:kotlinpoet-ksp:1.18.0")
+    implementation(project(":net-repository-anno"))
+    implementation("com.squareup.retrofit2:retrofit:2.5.0")
 }
 
 group = "io.github.zgenes"
 version = "0.0.7"
 
-//publishMavenCentral("ksp library for Google AutoService 🚀", "java")
+//publishMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀", "java")
 
 
 //KSFile

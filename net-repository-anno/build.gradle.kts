@@ -24,5 +24,5 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.kotlinx.coroutines.core)
 // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.5.0")
+    api("com.squareup.retrofit2:retrofit:2.5.0")
 }
