@@ -1,9 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wing.publishMavenCentral
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(wings.plugins.android)
     alias(libs.plugins.ksp)
+}
+
+buildscript {
+    dependencies {
+        classpath(wings.conventions)
+    }
 }
 
 kotlin {
@@ -30,9 +36,9 @@ dependencies {
 }
 
 group = "io.github.zgenes"
-version = "0.0.7"
+version = "0.0.1"
 
-//publishMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀", "java")
+publishMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀", "java")
 
 
 //KSFile

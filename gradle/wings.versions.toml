@@ -6,12 +6,13 @@ cubic = "2023.04.11"
 viewDsl = "2024.06.06"
 adapter = "2023.10.13"
 spark = "2023.12.08"
-conventions = "2.1.0"
-auto-service = "0.0.7"
+conventions = "2.1.4"
+auto-service = "0.0.8"
 surery = "2024.06.06"
 
 [libraries]
 auto-service = { module = "io.github.5hmla:auto-service", version.ref = "auto-service" }
+conventions = { module = "io.github.5hmlA:conventions", version.ref = "conventions" }
 sparkj-spark = { module = "osp.sparkj.ui:spark", version.ref = "spark" }
 sparkj-cartoon = { module = "osp.sparkj.ui:cartoon", version.ref = "cartoon" }
 sparkj-cubic = { module = "osp.sparkj.ui:cubic", version.ref = "cubic" }
