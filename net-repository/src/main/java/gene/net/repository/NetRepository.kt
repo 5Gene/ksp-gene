@@ -124,8 +124,11 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
                 retrofitFunBuild
                     .addModifiers(KModifier.OVERRIDE)//复写的方法
                     .addCode(buildCodeBlock {
-                        //retrofitProvider().create(TestService::class.java).getTest(id, params)
-                        add("return %M().create(%N::class.java).%N(${paramStrs})", retrofit, netApiClassName, funName)
+//                        +"java.lang.System.currentTimeMillis()"
+//                        "val ret = gene.net.repository.retrofitProvider().create"("com.example.ksptt.DataPacksNetApi::class.java")
+//                        "gene.net.repository.retrofitProvider".invokeTopLevelFunc()
+//                       "java.lang.System.currentTimeMillis".invokeJavaStaticFunc()
+                        add("return %M().create(%N::class.java).%N(${paramStrs})\n", retrofit, netApiClassName, funName)
                     }).build()
             )
         }
@@ -144,5 +147,4 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
     fun Any.log() {
         log(toString())
     }
-
 }
