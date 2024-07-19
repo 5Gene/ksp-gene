@@ -20,12 +20,6 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.QueryMap
 
 const val NET_SOURCE_ANNO = "gene.net.repository.NetSource"
 
@@ -44,6 +38,14 @@ data class NetDataStruct(
     Map<String, String>
 )
 
+val Path = "retrofit2.http.Path".toClassName()
+val QueryMap = "retrofit2.http.QueryMap".toClassName()
+val GET = "retrofit2.http.GET".toClassName()
+val POST = "retrofit2.http.POST".toClassName()
+val PUT = "retrofit2.http.PUT".toClassName()
+val DELETE = "retrofit2.http.DELETE".toClassName()
+
+val findPath = """\{(.*?)\}""".toRegex()
 
 fun retrofitFunBuild(
     name: String,
@@ -55,8 +57,8 @@ fun retrofitFunBuild(
     val funBuilder = FunSpec.builder(name).addModifiers(KModifier.SUSPEND)
     val params = mutableListOf<String>()
     params.addAll(paths)
-    funBuilder.addAnnoParams(Path::class, paths)
-    val queryMap = paramWithMap("params", String::class, Any::class, isOverride).addAnnotation(QueryMap::class).build()
+    funBuilder.addAnnoParams(Path, paths)
+    val queryMap = paramWithMap("params", String::class, Any::class, isOverride).addAnnotation(QueryMap).build()
     params.add("params")
     funBuilder.addParameter(queryMap)
     if (isList) {
@@ -66,8 +68,6 @@ fun retrofitFunBuild(
     }
     return funBuilder to params.joinToString(",")
 }
-
-val findPath = """\{(.*?)\}""".toRegex()
 
 class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -102,13 +102,13 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
 
             val className = it.ksClass.simpleName()
             val (annotationSpec, funName) = if (method.equals("get", true)) {
-                AnnotationSpec.builder(GET::class).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(GET).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
             } else if (method.equals("post", true)) {
-                AnnotationSpec.builder(POST::class).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(POST).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
             } else if (method.equals("put", true)) {
-                AnnotationSpec.builder(PUT::class).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(PUT).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
             } else if (method.equals("delete", true)) {
-                AnnotationSpec.builder(DELETE::class).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(DELETE).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
             } else {
                 throw RuntimeException("not support $method")
             }

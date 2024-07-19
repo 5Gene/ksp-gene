@@ -25,6 +25,16 @@ fun FunSpec.Builder.addAnnoParams(annoType: KClass<out Annotation>, params: List
     }
 }
 
+fun FunSpec.Builder.addAnnoParams(annoType: ClassName, params: List<String> = emptyList<String>()) {
+    params.forEach {
+        // 创建`id`参数
+        val parameter = ParameterSpec.builder(it, String::class)
+            .addAnnotation(AnnotationSpec.builder(annoType).addMember("\"$it\"", it).build())
+            .build()
+        addParameter(parameter)
+    }
+}
+
 fun paramWithMap(paramName: String, keyClass: KClass<*>, valueClass: KClass<*>, isOverride: Boolean) = ParameterSpec.builder(
     paramName, Map::class.asTypeName().parameterizedBy(
         keyClass.asTypeName(),

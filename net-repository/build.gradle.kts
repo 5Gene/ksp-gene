@@ -32,7 +32,6 @@ dependencies {
     ksp(wings.auto.service)
     implementation("com.squareup:kotlinpoet-ksp:1.18.0")
     implementation(project(":net-repository-anno"))
-    implementation("com.squareup.retrofit2:retrofit:2.5.0")
 }
 
 group = "io.github.5gene"
