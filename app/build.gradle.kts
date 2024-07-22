@@ -7,7 +7,7 @@ plugins {
 }
 
 ksp {
-    arg("option1", "value1")
+    arg("NetResult", "com.example.ksptt.NetResult")
     arg("option2", "value2")
 }
 android {

@@ -1,8 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wing.publishMavenCentral
 
 plugins {
     id("java-library")
     alias(libs.plugins.kotlin.jvm)
+}
+
+buildscript {
+    dependencies {
+        classpath(wings.conventions)
+    }
 }
 
 java {
@@ -15,8 +22,8 @@ kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
         freeCompilerArgs.add("-Xcontext-receivers")
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+//        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+//        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }
 
@@ -26,3 +33,5 @@ dependencies {
 // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     api("com.squareup.retrofit2:retrofit:2.5.0")
 }
+
+publishMavenCentral("annotation for NetSource", "kotlin")

@@ -42,6 +42,16 @@ fun paramWithMap(paramName: String, keyClass: KClass<*>, valueClass: KClass<*>, 
     )
 ).also { if (!isOverride) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyMap")) }
 
+fun paramWithMap(paramName: String, isOverride: Boolean) = ParameterSpec.builder(
+    paramName, Map::class.asTypeName().parameterizedBy(
+        String::class.asTypeName(),
+        Any::class.asTypeName().copy(
+            //不加这个注解retrofit调用会报错
+            annotations = listOf(AnnotationSpec.builder(JvmSuppressWildcards::class).build())
+        )
+    )
+).also { if (!isOverride) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyMap")) }
+
 fun paramWithList(paramName: String, valueClass: KClass<*>, isOverride: Boolean) = ParameterSpec.builder(
     paramName, List::class.asTypeName().parameterizedBy(
         valueClass.asTypeName()

@@ -51,6 +51,7 @@ fun retrofitFunBuild(
     name: String,
     isList: Boolean,
     ksClass: KSClassDeclaration,
+    netResultClassName: String,
     isOverride: Boolean,
     paths: List<String> = emptyList()
 ): Pair<FunSpec.Builder, String> {
@@ -58,13 +59,14 @@ fun retrofitFunBuild(
     val params = mutableListOf<String>()
     params.addAll(paths)
     funBuilder.addAnnoParams(Path, paths)
-    val queryMap = paramWithMap("params", String::class, Any::class, isOverride).addAnnotation(QueryMap).build()
+    val queryMap = paramWithMap("params", isOverride).addAnnotation(QueryMap).build()
     params.add("params")
     funBuilder.addParameter(queryMap)
+    val netResultClass = netResultClassName.toClassName()
     if (isList) {
-        funBuilder.returns(List::class.asTypeName().parameterizedBy(ksClass.toClassName()))
+        funBuilder.returns(netResultClass.parameterizedBy(List::class.asTypeName().parameterizedBy(ksClass.toClassName())))
     } else {
-        funBuilder.returns(ksClass.toClassName())
+        funBuilder.returns(netResultClass.parameterizedBy(ksClass.toClassName()))
     }
     return funBuilder to params.joinToString(",")
 }
@@ -86,17 +88,32 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
     private fun generateNetService(dataStructs: List<NetDataStruct>) {
         val dataStruct = dataStructs.first()
         val netApiClassName = "${dataStruct.fileName}NetApi"
-        val interfaceBuilder = TypeSpec.interfaceBuilder(netApiClassName)
+        val interfaceBuilder = TypeSpec.interfaceBuilder(netApiClassName).addModifiers(KModifier.PRIVATE)
         val objectBuilder = TypeSpec
             .objectBuilder("${dataStruct.fileName}NetSource")
             .addSuperinterface(ClassName(dataStruct.packageName, netApiClassName))
 
         val retrofit = "gene.net.repository.retrofitProvider".topLevelFuncMember()
+        if (!environment.options.containsKey("NetResult")) {
+            environment.logger.error(
+                """
+                you have to set "NetResult" by option as class name for read net response data
+                for example:
+                
+                ksp {
+                    arg("NetResult", "your.net.data.wrapper.class.name")
+                }
+                
+            """.trimIndent()
+            )
+        }
+        val netResultClassName = environment.options["NetResult"]!!
 
         dataStructs.forEach {
             val method by it.netSourceAnno
             val path by it.netSourceAnno
             val list by it.netSourceAnno
+            val extra by it.netSourceAnno
 
             val paths = findPath.findAll(path).map { it.groupValues[1] }.toList()
 
@@ -104,22 +121,22 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
             val (annotationSpec, funName) = if (method.equals("get", true)) {
                 AnnotationSpec.builder(GET).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
             } else if (method.equals("post", true)) {
-                AnnotationSpec.builder(POST).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(POST).addMember("\"$path\"").build() to "post${className.replaceFirstChar(Char::titlecase)}"
             } else if (method.equals("put", true)) {
-                AnnotationSpec.builder(PUT).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(PUT).addMember("\"$path\"").build() to "put${className.replaceFirstChar(Char::titlecase)}"
             } else if (method.equals("delete", true)) {
-                AnnotationSpec.builder(DELETE).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(DELETE).addMember("\"$path\"").build() to "del${className.replaceFirstChar(Char::titlecase)}"
             } else {
                 throw RuntimeException("not support $method")
             }
 
-            val (retrofitAbsFunBuild, _) = retrofitFunBuild(funName, list.toBoolean(), it.ksClass, false, paths)
+            val (retrofitAbsFunBuild, _) = retrofitFunBuild(funName, list.toBoolean(), it.ksClass, netResultClassName, false, paths)
             retrofitAbsFunBuild
                 .addModifiers(KModifier.ABSTRACT)
                 .addAnnotation(annotationSpec)
             interfaceBuilder.addFunction(retrofitAbsFunBuild.build())
 
-            val (retrofitFunBuild, paramStrs) = retrofitFunBuild(funName, list.toBoolean(), it.ksClass, true, paths)
+            val (retrofitFunBuild, paramStrs) = retrofitFunBuild(funName, list.toBoolean(), it.ksClass, netResultClassName, true, paths)
             objectBuilder.addFunction(
                 retrofitFunBuild
                     .addModifiers(KModifier.OVERRIDE)//复写的方法
@@ -128,7 +145,7 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
 //                        "val ret = gene.net.repository.retrofitProvider().create"("com.example.ksptt.DataPacksNetApi::class.java")
 //                        "gene.net.repository.retrofitProvider".invokeTopLevelFunc()
 //                       "java.lang.System.currentTimeMillis".invokeJavaStaticFunc()
-                        add("return %M().create(%N::class.java).%N(${paramStrs})\n", retrofit, netApiClassName, funName)
+                        add("return %M(%S).create(%N::class.java).%N(${paramStrs})\n", retrofit, extra, netApiClassName, funName)
                     }).build()
             )
         }
