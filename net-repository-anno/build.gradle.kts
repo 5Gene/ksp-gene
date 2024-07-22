@@ -34,4 +34,7 @@ dependencies {
     api("com.squareup.retrofit2:retrofit:2.5.0")
 }
 
-publishMavenCentral("annotation for NetSource", "kotlin")
+group = "io.github.5gene"
+version = "0.0.1"
+
+publishMavenCentral("annotation for NetSource", "java")
