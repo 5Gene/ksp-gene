@@ -22,3 +22,4 @@ rootProject.name = "ksp-gene"
 include ':app'
 include ':net-repository-anno'
 include ':net-repository'
+include ':ksp-poe'

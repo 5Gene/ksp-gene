@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import wing.publishMavenCentral
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -31,13 +30,13 @@ dependencies {
     implementation(libs.google.auto.service.anno)
     ksp(wings.auto.service)
     implementation("com.squareup:kotlinpoet-ksp:1.18.0")
-    implementation(project(":net-repository-anno"))
+//    implementation(project(":net-repository-anno"))
 }
 
 group = "io.github.5gene"
 version = "0.0.1"
 
-publishMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀", "java")
+//publishMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀", "java")
 
 
 //KSFile

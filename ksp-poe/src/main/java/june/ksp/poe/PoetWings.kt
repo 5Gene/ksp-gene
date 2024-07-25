@@ -1,4 +1,4 @@
-package gene.net.repository
+package june.ksp.poe
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -8,6 +8,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import kotlin.reflect.KClass
@@ -35,6 +36,10 @@ fun FunSpec.Builder.addAnnoParams(annoType: KClass<out Annotation>, params: List
     }
 }
 
+/**
+ * 给方法添加参数，参数带注解
+ * fun(@annoType("param") param:String)
+ */
 fun FunSpec.Builder.addAnnoParams(annoType: ClassName, params: List<String> = emptyList<String>()) {
     params.forEach {
         // 创建`id`参数
@@ -50,50 +55,89 @@ fun FunSpec.Builder.addAnnoParams(annoType: ClassName, params: List<String> = em
     }
 }
 
-fun paramWithMap(paramName: String, keyClass: KClass<*>, valueClass: KClass<*>, isOverride: Boolean) = ParameterSpec.builder(
-    paramName, Map::class.asTypeName().parameterizedBy(
-        keyClass.asTypeName(),
-        valueClass.asTypeName()
+/**
+ * 构建类型为Map的方法参数并带默认值
+ * fun(paramName: Map<key:value>=emptyMap())
+ */
+fun paramWithMap(paramName: String, keyClass: KClass<*>, valueClass: KClass<*>, isOverride: Boolean) = paramWithMap(
+    paramName,
+    keyClass.asTypeName(),
+    valueClass.asTypeName(),
+    isOverride
+)
+
+/**
+ * 构建类型为Map的方法参数并带默认值
+ * fun(paramName: Map<keyClassName:valueClassName>=emptyMap())
+ */
+fun paramWithMap(paramName: String, keyClassName: TypeName, valueClassName: TypeName, isOverride: Boolean) = ParameterSpec.builder(
+    paramName,
+    Map::class.asTypeName().parameterizedBy(
+        keyClassName,
+        valueClassName
     )
 ).also { if (!isOverride) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyMap")) }
 
-fun paramWithMap(paramName: String, isOverride: Boolean) = ParameterSpec.builder(
-    paramName, Map::class.asTypeName().parameterizedBy(
-        String::class.asTypeName(),
-        Any::class.asTypeName().copy(
-            //不加这个注解retrofit调用会报错
-            annotations = listOf(AnnotationSpec.builder(JvmSuppressWildcards::class).build())
-        )
-    )
-).also { if (!isOverride) it.defaultValue("%M()", "kotlin.collections.emptyMap".topLevelFuncMember()) }
+/**
+ * 构建类型为`Map`的方法参数并带默认值
+ * fun(paramName: Map<String:Any>=emptyMap())
+ */
+fun paramWithMap(paramName: String, isOverride: Boolean) = paramWithMap(
+    paramName,
+    String::class.asTypeName(),
+    Any::class.asTypeName().copy(
+        //不加这个注解retrofit调用会报错
+        annotations = listOf(AnnotationSpec.builder(JvmSuppressWildcards::class).build())
+    ),
+    isOverride
+)
 
-fun paramWithList(paramName: String, valueClass: KClass<*>, isOverride: Boolean) = ParameterSpec.builder(
-    paramName, List::class.asTypeName().parameterizedBy(
-        valueClass.asTypeName()
-    )
+/**
+ * 构建类型为`List`的方法参数并带默认值
+ * fun(paramName: List<valueClass>=emptyList())
+ */
+fun paramWithList(paramName: String, valueClass: KClass<*>, isOverride: Boolean) = paramWithList(paramName, valueClass.asTypeName(), isOverride)
+
+/**
+ * 构建类型为`List`的方法参数并带默认值
+ * fun(paramName: List<ksClassDeclaration>=emptyList())
+ */
+fun paramWithList(paramName: String, ksClassDeclaration: KSClassDeclaration, isOverride: Boolean) =
+    paramWithList(paramName, ksClassDeclaration.toClassName(), isOverride)
+
+/**
+ * 构建类型为`List`的方法参数并带默认值
+ * fun(paramName: List<valueClassName>=emptyList())
+ */
+fun paramWithList(paramName: String, valueClassName: TypeName, isOverride: Boolean) = ParameterSpec.builder(
+    paramName, List::class.asTypeName().parameterizedBy(valueClassName)
 ).also { if (!isOverride) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyList")) }
 
-fun paramWithList(paramName: String, ksClass: KSClassDeclaration, isOverride: Boolean) = ParameterSpec.builder(
-    paramName, List::class.asTypeName().parameterizedBy(ksClass.toClassName())
-).also { if (!isOverride) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyList")) }
 
 fun String.toClassName(): ClassName {
     val dotIndex = this.lastIndexOf(".")
     return ClassName(substring(0, dotIndex), substring(dotIndex + 1))
 }
 
-
+/**
+ * 顶级函数
+ * 顶级成员变量
+ */
 fun String.toMemberName(): MemberName {
     val dotIndex = this.lastIndexOf(".")
     return MemberName(substring(0, dotIndex), substring(dotIndex + 1))
 }
 
+/**
+ * 顶级函数
+ */
 fun topLevelFuncMember(packageName: String, funcName: String) = MemberName(packageName, funcName)
 
 /**
+ * 顶级函数
  * "kotlin.collections.emptyList".topLevelFuncMember()
  */
-fun String.topLevelFuncMember(): MemberName {
+fun String.topLevelFunc(): MemberName {
     val dotIndex = this.lastIndexOf(".")
     return MemberName(substring(0, dotIndex), substring(dotIndex + 1))
 }

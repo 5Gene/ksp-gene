@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wing.publishMavenCentral
 
 plugins {
-    id("java-library")
     alias(libs.plugins.kotlin.jvm)
 }
 
@@ -11,10 +11,6 @@ buildscript {
     }
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
 kotlin {
     // Or shorter:
     jvmToolchain(17)
@@ -27,13 +23,12 @@ kotlin {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(libs.kotlinx.coroutines.core)
-// https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
-    api("com.squareup.retrofit2:retrofit:2.5.0")
+    api(libs.ksp.process.api)
+    api(libs.ksp.poe)
+    // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
+    api(libs.google.auto.service.anno)
 }
 
 group = "io.github.5gene"
 version = "0.0.1"
-
-//publishMavenCentral("annotation for NetSource", "java")
+publishMavenCentral("ksp poe wings", "java")
