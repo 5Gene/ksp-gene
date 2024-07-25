@@ -13,13 +13,23 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import kotlin.reflect.KClass
 
 /**
+ * A<T>
+ * 泛型 parameterizedBy
+ */
+fun ClassName.fanxing(T: ClassName) = this.parameterizedBy(T)
+
+/**
  * 方法添加参数,参数支持注解,注解的参数和方法参数名一致
  */
 fun FunSpec.Builder.addAnnoParams(annoType: KClass<out Annotation>, params: List<String> = emptyList<String>()) {
     params.forEach {
         // 创建`id`参数
         val parameter = ParameterSpec.builder(it, String::class)
-            .addAnnotation(AnnotationSpec.builder(annoType).addMember("\"$it\"", it).build())
+            .addAnnotation(
+                AnnotationSpec.builder(annoType)
+                    .addMember("%S", it)
+                    .build()
+            )
             .build()
         addParameter(parameter)
     }
@@ -29,7 +39,12 @@ fun FunSpec.Builder.addAnnoParams(annoType: ClassName, params: List<String> = em
     params.forEach {
         // 创建`id`参数
         val parameter = ParameterSpec.builder(it, String::class)
-            .addAnnotation(AnnotationSpec.builder(annoType).addMember("\"$it\"", it).build())
+            .addAnnotation(
+                AnnotationSpec.builder(annoType)
+                    //%S，填充字符串 "$it"
+                    .addMember("%S", it)
+                    .build()
+            )
             .build()
         addParameter(parameter)
     }
@@ -75,6 +90,9 @@ fun String.toMemberName(): MemberName {
 
 fun topLevelFuncMember(packageName: String, funcName: String) = MemberName(packageName, funcName)
 
+/**
+ * "kotlin.collections.emptyList".topLevelFuncMember()
+ */
 fun String.topLevelFuncMember(): MemberName {
     val dotIndex = this.lastIndexOf(".")
     return MemberName(substring(0, dotIndex), substring(dotIndex + 1))
