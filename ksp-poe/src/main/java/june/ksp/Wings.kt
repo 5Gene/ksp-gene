@@ -4,19 +4,28 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeReference
 
 
 //<editor-fold desc="extensions for kt">
 val String.yellow: String
     get() = "\u001B[93m${this}\u001B[0m"
 
-fun KSType.fullClassName() = declaration.fullClassName()
+fun KSType.asClassName() = declaration.asClassName()
 
-fun KSDeclaration.fullClassName() = qualifiedName!!.asString()
+fun KSDeclaration.asClassName() = qualifiedName!!.asString()
 
-fun KSDeclaration.packageName() = packageName.asString()
+fun KSTypeReference.asClassName() = resolve().asClassName()
 
-fun KSDeclaration.simpleName() = simpleName.asString()
+fun KSDeclaration.asPackageName() = packageName.asString()
+
+fun KSDeclaration.asSimpleName() = simpleName.asString()
+
+fun KSClassDeclaration.readAnnotations(annotationFullName: String): Map<String, String>? {
+    return annotations
+        .find { it.annotationType.asClassName() == annotationFullName }
+        ?.arguments?.associate { it.name!!.getShortName() to it.value!!.toString() }
+}
 
 val String.lookDown: String
     get() = "👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇 $this 👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇"
