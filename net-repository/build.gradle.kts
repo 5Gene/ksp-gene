@@ -1,8 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wing.publishJavaMavenCentral
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ksp)
+    alias(wings.plugins.dev.ksp)
 }
 
 buildscript {
@@ -23,20 +24,11 @@ kotlin {
 }
 
 //https://kotlinlang.org/docs/ksp-incremental.html#aggregating-vs-isolating
-dependencies {
-//    implementation("com.squareup:kotlinpoet-ksp:1.16.0")
-    implementation(libs.ksp.process.api)
-    // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
-    implementation(libs.google.auto.service.anno)
-    ksp(wings.auto.service)
-    implementation("com.squareup:kotlinpoet-ksp:1.18.0")
-//    implementation(project(":net-repository-anno"))
-}
 
 group = "io.github.5gene"
-version = "0.0.1"
+version = "0.0.2"
 
-//publishMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀", "java")
+publishJavaMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀")
 
 
 //KSFile

@@ -7,7 +7,7 @@ adapter = "2023.10.13"
 spark = "2023.12.08"
 surery = "2024.06.06"
 
-conventions = "2.1.5"
+conventions = "2.1.6"
 auto-service = "0.0.8"
 view-dsl = "0.0.1"
 ksp-poe = "0.0.2"
@@ -31,6 +31,7 @@ compose = { id = "io.github.5hmlA.android.compose", version.ref = "conventions" 
 android = { id = "io.github.5hmlA.android", version.ref = "conventions" }
 protobuf = { id = "io.github.5hmlA.protobuf", version.ref = "conventions" }
 knife = { id = "io.github.5hmlA.knife", version.ref = "conventions" }
+dev-ksp = { id = "io.github.5hmlA.dev.ksp", version.ref = "conventions" }
 
 #需要手动配置 才可以使用
 #dependencyResolutionManagement {

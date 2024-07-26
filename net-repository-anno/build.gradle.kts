@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wing.publishJavaMavenCentral
 
 plugins {
     id("java-library")
@@ -28,12 +29,11 @@ kotlin {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation(libs.kotlinx.coroutines.core)
-// https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
+    // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     api("com.squareup.retrofit2:retrofit:2.5.0")
 }
 
 group = "io.github.5gene"
-version = "0.0.1"
+version = "0.0.2"
 
-//publishMavenCentral("annotation for NetSource", "java")
+publishJavaMavenCentral("annotation for NetSource")

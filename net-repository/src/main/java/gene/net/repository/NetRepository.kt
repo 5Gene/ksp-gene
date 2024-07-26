@@ -20,6 +20,14 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
+import june.ksp.asPackageName
+import june.ksp.asSimpleName
+import june.ksp.fileName
+import june.ksp.poe.addAnnoParams
+import june.ksp.poe.paramWithMap
+import june.ksp.poe.toClassName
+import june.ksp.poe.topLevelFunc
+import june.ksp.readAnnotations
 
 const val NET_SOURCE_ANNO = "gene.net.repository.NetSource"
 
@@ -80,7 +88,7 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
         symbolsWithAnnotation.filter { it.validate() }
             .filterIsInstance<KSClassDeclaration>()
             .map {
-                NetDataStruct(it.fileName(), it.containingFile!!, it.packageName(), it, it.readAnnotations()!!)
+                NetDataStruct(it.fileName(), it.containingFile!!, it.asPackageName(), it, it.readAnnotations(NET_SOURCE_ANNO)!!)
             }.groupBy { it.fileName }.map { it.value }.forEach(::generateNetService)
         return emptyList()
     }
@@ -93,7 +101,7 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
             .objectBuilder("${dataStruct.fileName}NetSource")
             .addSuperinterface(ClassName(dataStruct.packageName, netApiClassName))
 
-        val retrofit = "gene.net.repository.retrofitProvider".topLevelFuncMember()
+        val retrofit = "gene.net.repository.retrofitProvider".topLevelFunc()
         if (!environment.options.containsKey("NetResult")) {
             environment.logger.error(
                 """
@@ -117,7 +125,7 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
 
             val paths = findPath.findAll(path).map { it.groupValues[1] }.toList()
 
-            val className = it.ksClass.simpleName()
+            val className = it.ksClass.asSimpleName()
             val (annotationSpec, funName) = if (method.equals("get", true)) {
                 AnnotationSpec.builder(GET).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
             } else if (method.equals("post", true)) {
