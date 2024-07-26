@@ -15,6 +15,7 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.buildCodeBlock
@@ -27,6 +28,7 @@ import june.ksp.poe.addAnnoParams
 import june.ksp.poe.paramWithMap
 import june.ksp.poe.toClassName
 import june.ksp.poe.topLevelFunc
+import june.ksp.poe.unaryPlus
 import june.ksp.readAnnotations
 
 const val NET_SOURCE_ANNO = "gene.net.repository.NetSource"
@@ -97,11 +99,20 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
         val dataStruct = dataStructs.first()
         val netApiClassName = "${dataStruct.fileName}NetApi"
         val interfaceBuilder = TypeSpec.interfaceBuilder(netApiClassName).addModifiers(KModifier.PRIVATE)
+        val retrofit = "gene.net.repository.retrofitProvider".topLevelFunc()
         val objectBuilder = TypeSpec
             .objectBuilder("${dataStruct.fileName}NetSource")
             .addSuperinterface(ClassName(dataStruct.packageName, netApiClassName))
+            .addProperty(
+                PropertySpec.builder(
+                    "retrofit",
+                    ClassName(dataStruct.packageName, netApiClassName),
+                    KModifier.PRIVATE
+                ).initializer(buildCodeBlock {
+                    add("%M(%S).create(%N::class.java)\n", retrofit, "", netApiClassName)
+                }).build()
+            )
 
-        val retrofit = "gene.net.repository.retrofitProvider".topLevelFunc()
         if (!environment.options.containsKey("NetResult")) {
             environment.logger.error(
                 """
@@ -153,7 +164,12 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
 //                        "val ret = gene.net.repository.retrofitProvider().create"("com.example.ksptt.DataPacksNetApi::class.java")
 //                        "gene.net.repository.retrofitProvider".invokeTopLevelFunc()
 //                       "java.lang.System.currentTimeMillis".invokeJavaStaticFunc()
-                        add("return %M(%S).create(%N::class.java).%N(${paramStrs})\n", retrofit, extra, netApiClassName, funName)
+                        if (extra.isEmpty()) {
+//                            add("return retrofit.%N(${paramStrs})\n",funName)
+                            +"return retrofit.$funName(${paramStrs})"
+                        } else {
+                            add("return %M(%S).create(%N::class.java).%N(${paramStrs})\n", retrofit, extra, netApiClassName, funName)
+                        }
                     }).build()
             )
         }
