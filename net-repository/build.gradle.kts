@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import wing.publishJavaMavenCentral
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -26,9 +25,9 @@ kotlin {
 //https://kotlinlang.org/docs/ksp-incremental.html#aggregating-vs-isolating
 
 group = "io.github.5gene"
-version = "0.0.2"
+version = "0.0.3"
 
-publishJavaMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀")
+//publishJavaMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀")
 
 
 //KSFile
