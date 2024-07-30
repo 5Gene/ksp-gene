@@ -115,8 +115,12 @@ fun paramWithList(paramName: String, valueClassName: TypeName, isOverride: Boole
 
 
 fun String.toClassName(): ClassName {
-    val dotIndex = this.lastIndexOf(".")
-    return ClassName(substring(0, dotIndex), substring(dotIndex + 1))
+    try {
+        return ClassName.bestGuess(this)
+    } catch (e: Exception) {
+        val dotIndex = this.lastIndexOf(".")
+        return ClassName(substring(0, dotIndex), substring(dotIndex + 1))
+    }
 }
 
 /**
@@ -221,4 +225,34 @@ operator fun String.invoke(vararg params: String) {
 context(CodeBlock.Builder)
 operator fun String.unaryPlus() {
     add("${this}\n")
+}
+
+
+/**
+ * kotlin顶级函数用
+ */
+context(CodeBlock.Builder)
+fun String.M(vararg memberName: MemberName) {
+    add("$this\n", *memberName)
+}
+
+/**
+ * 完整类名用
+ */
+context(CodeBlock.Builder)
+fun String.T(vararg className: ClassName) {
+    add("$this\n", *className)
+}
+
+/**
+ * 格式化
+ */
+context(CodeBlock.Builder)
+fun String.codeFormat(vararg args: Any) {
+    add("$this\n", *args)
+}
+
+context(CodeBlock.Builder)
+fun String.cf(vararg args: Any) {
+    add("$this\n", *args)
 }
