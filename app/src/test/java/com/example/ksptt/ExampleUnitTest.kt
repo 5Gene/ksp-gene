@@ -14,6 +14,9 @@ class ExampleUnitTest {
         """\{(.*?)\}""".toRegex().findAll("/user/{ixxxd}/{id}/combo").forEach {
             println(it.groupValues[1])
         }
+        throw NetResultException("cuou")
         assertEquals(4, 2 + 2)
     }
 }
+
+class NetResultException(override val message: String) : Exception(message, null, false, false)

@@ -11,6 +11,10 @@ buildscript {
     }
 }
 
+dependencies {
+    implementation(wings.ksp.poe)
+}
+
 kotlin {
     // Or shorter:
     jvmToolchain(17)
