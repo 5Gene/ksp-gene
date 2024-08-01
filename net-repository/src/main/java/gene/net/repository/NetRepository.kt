@@ -67,14 +67,14 @@ fun retrofitFunBuild(
     isList: Boolean,
     ksClass: KSClassDeclaration,
     netResultClass: ClassName?,
-    isOverride: Boolean,
+    default: Boolean,
     paths: List<String> = emptyList()
 ): Pair<FunSpec.Builder, String> {
     val funBuilder = FunSpec.builder(name).addModifiers(KModifier.SUSPEND)
     val params = mutableListOf<String>()
     params.addAll(paths)
     funBuilder.addAnnoParams(Path, paths)
-    val queryMap = paramWithMap("params", isOverride).addAnnotation(QueryMap).build()
+    val queryMap = paramWithMap("params", default).addAnnotation(QueryMap).build()
     params.add("params")
     funBuilder.addParameter(queryMap)
     val resultClass = ksClass.toClassName()

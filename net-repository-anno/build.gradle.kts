@@ -35,7 +35,7 @@ dependencies {
 }
 
 group = "io.github.5gene"
-version = "0.0.3"
+version = "0.0.4"
 
 if (property("publish.ksp", "") == "repository") {
     publishJavaMavenCentral("annotation for NetSource")
