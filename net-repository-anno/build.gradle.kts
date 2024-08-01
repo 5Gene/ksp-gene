@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wing.property
+import wing.publishJavaMavenCentral
 
 plugins {
     id("java-library")
@@ -35,4 +37,6 @@ dependencies {
 group = "io.github.5gene"
 version = "0.0.3"
 
-//publishJavaMavenCentral("annotation for NetSource")
+if (property("publish.ksp", "") == "repository") {
+    publishJavaMavenCentral("annotation for NetSource")
+}

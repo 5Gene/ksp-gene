@@ -59,59 +59,59 @@ fun FunSpec.Builder.addAnnoParams(annoType: ClassName, params: List<String> = em
  * 构建类型为Map的方法参数并带默认值
  * fun(paramName: Map<key:value>=emptyMap())
  */
-fun paramWithMap(paramName: String, keyClass: KClass<*>, valueClass: KClass<*>, isOverride: Boolean) = paramWithMap(
+fun paramWithMap(paramName: String, keyClass: KClass<*>, valueClass: KClass<*>, default: Boolean) = paramWithMap(
     paramName,
     keyClass.asTypeName(),
     valueClass.asTypeName(),
-    isOverride
+    default
 )
 
 /**
  * 构建类型为Map的方法参数并带默认值
  * fun(paramName: Map<keyClassName:valueClassName>=emptyMap())
  */
-fun paramWithMap(paramName: String, keyClassName: TypeName, valueClassName: TypeName, isOverride: Boolean) = ParameterSpec.builder(
+fun paramWithMap(paramName: String, keyClassName: TypeName, valueClassName: TypeName, default: Boolean) = ParameterSpec.builder(
     paramName,
     Map::class.asTypeName().parameterizedBy(
         keyClassName,
         valueClassName
     )
-).also { if (!isOverride) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyMap")) }
+).also { if (default) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyMap")) }
 
 /**
  * 构建类型为`Map`的方法参数并带默认值
  * fun(paramName: Map<String:Any>=emptyMap())
  */
-fun paramWithMap(paramName: String, isOverride: Boolean) = paramWithMap(
+fun paramWithMap(paramName: String, default: Boolean) = paramWithMap(
     paramName,
     String::class.asTypeName(),
     Any::class.asTypeName().copy(
         //不加这个注解retrofit调用会报错
         annotations = listOf(AnnotationSpec.builder(JvmSuppressWildcards::class).build())
     ),
-    isOverride
+    default
 )
 
 /**
  * 构建类型为`List`的方法参数并带默认值
  * fun(paramName: List<valueClass>=emptyList())
  */
-fun paramWithList(paramName: String, valueClass: KClass<*>, isOverride: Boolean) = paramWithList(paramName, valueClass.asTypeName(), isOverride)
+fun paramWithList(paramName: String, valueClass: KClass<*>, default: Boolean) = paramWithList(paramName, valueClass.asTypeName(), default)
 
 /**
  * 构建类型为`List`的方法参数并带默认值
  * fun(paramName: List<ksClassDeclaration>=emptyList())
  */
-fun paramWithList(paramName: String, ksClassDeclaration: KSClassDeclaration, isOverride: Boolean) =
-    paramWithList(paramName, ksClassDeclaration.toClassName(), isOverride)
+fun paramWithList(paramName: String, ksClassDeclaration: KSClassDeclaration, default: Boolean) =
+    paramWithList(paramName, ksClassDeclaration.toClassName(), default)
 
 /**
  * 构建类型为`List`的方法参数并带默认值
  * fun(paramName: List<valueClassName>=emptyList())
  */
-fun paramWithList(paramName: String, valueClassName: TypeName, isOverride: Boolean) = ParameterSpec.builder(
+fun paramWithList(paramName: String, valueClassName: TypeName, default: Boolean) = ParameterSpec.builder(
     paramName, List::class.asTypeName().parameterizedBy(valueClassName)
-).also { if (!isOverride) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyList")) }
+).also { if (default) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyList")) }
 
 
 fun String.toClassName(): ClassName {
@@ -130,6 +130,10 @@ fun String.toClassName(): ClassName {
 fun String.toMemberName(): MemberName {
     val dotIndex = this.lastIndexOf(".")
     return MemberName(substring(0, dotIndex), substring(dotIndex + 1))
+}
+
+fun String.toKtTopLevel(): MemberName {
+    return toMemberName()
 }
 
 /**

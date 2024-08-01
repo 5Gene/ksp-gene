@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import wing.property
 import wing.publishJavaMavenCentral
 
 plugins {
@@ -32,4 +33,6 @@ dependencies {
 group = "io.github.5gene"
 version = wings.versions.ksp.poe.get()
 
-publishJavaMavenCentral("ksp poe wings")
+if (property("publish.ksp", "") == "poe") {
+    publishJavaMavenCentral("ksp poe wings")
+}
