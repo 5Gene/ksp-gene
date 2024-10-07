@@ -1,9 +1,9 @@
 plugins {
     //https://github.com/google/ksp/releases
     //libs.plugins.android.application必须在最上面
-    alias(libs.plugins.android.application)
-    alias(wings.plugins.compose)
-    alias(libs.plugins.ksp)
+    alias(vcl.plugins.android.application)
+    alias(vcl.plugins.gene.compose)
+    alias(vcl.plugins.ksp)
 }
 
 ksp {
@@ -17,12 +17,6 @@ android {
 dependencies {
     implementation(project(":net-repository-anno"))
     ksp(project(":net-repository"))
-    val composeBom = platform(libs.androidx.compose.bom)
-    implementation(composeBom)
-    implementation(libs.bundles.compose)
-    implementation(libs.androidx.appcompat)
-    testImplementation(libs.test.junit)
-    androidTestImplementation(libs.bundles.androidx.benchmark)
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     implementation("com.squareup.retrofit2:retrofit:2.5.0")

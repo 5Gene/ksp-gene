@@ -3,13 +3,13 @@ import wing.property
 import wing.publishJavaMavenCentral
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    alias(vcl.plugins.kotlin.jvm)
     alias(wings.plugins.dev.ksp)
 }
 
 buildscript {
     dependencies {
-        classpath(wings.conventions)
+        classpath(vcl.gene.conventions)
     }
 }
 
