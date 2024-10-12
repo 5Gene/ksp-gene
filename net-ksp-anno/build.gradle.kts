@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import wing.property
 import wing.publishJavaMavenCentral
 
@@ -13,20 +12,6 @@ buildscript {
     }
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-kotlin {
-    // Or shorter:
-    jvmToolchain(17)
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
-        freeCompilerArgs.add("-Xcontext-receivers")
-//        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-//        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-    }
-}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -35,7 +20,7 @@ dependencies {
 }
 
 group = "io.github.5gene"
-version = "0.0.4"
+version = wings.versions.gene.net.ksp.anno.get()
 
 if (property("publish.ksp", "") == "repository") {
     publishJavaMavenCentral("annotation for NetSource")

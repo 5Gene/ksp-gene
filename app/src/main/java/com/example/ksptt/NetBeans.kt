@@ -1,7 +1,7 @@
 package com.example.ksptt
 
-import gene.net.repository.INetResult
-import gene.net.repository.NetSource
+import gene.net.anno.INetResult
+import gene.net.anno.NetSource
 
 @NetSource("post", "/user/{id}/combo")
 data class TestDTO(val name: String)

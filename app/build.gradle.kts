@@ -15,8 +15,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":net-repository-anno"))
-    ksp(project(":net-repository"))
+    implementation(project(":net-ksp-anno"))
+    "ksp"(project(":net-ksp-repository"))
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     implementation("com.squareup.retrofit2:retrofit:2.5.0")

@@ -4,7 +4,7 @@ import wing.publishJavaMavenCentral
 
 plugins {
     alias(vcl.plugins.kotlin.jvm)
-    alias(wings.plugins.dev.ksp)
+    alias(wings.plugins.gene.dev.ksp)
 }
 
 buildscript {
@@ -14,7 +14,7 @@ buildscript {
 }
 
 dependencies {
-    implementation(wings.ksp.poe)
+    implementation(wings.gene.ksp.poe)
 }
 
 kotlin {
@@ -31,7 +31,7 @@ kotlin {
 //https://kotlinlang.org/docs/ksp-incremental.html#aggregating-vs-isolating
 
 group = "io.github.5gene"
-version = "0.0.4"
+version = "1.0"
 
 if (property("publish.ksp", "") == "repository") {
     publishJavaMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀")

@@ -31,7 +31,7 @@ dependencies {
 }
 
 group = "io.github.5gene"
-version = wings.versions.ksp.poe.get()
+version = wings.versions.gene.ksp.poe.get()
 
 if (property("publish.ksp", "") == "poe") {
     publishJavaMavenCentral("ksp poe wings")

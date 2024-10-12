@@ -24,6 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ksp-gene"
 include ':app'
-include ':net-repository-anno'
-include ':net-repository'
+include ':net-ksp-anno'
+include ':net-ksp-repository'
 include ':ksp-poe'
