@@ -24,10 +24,10 @@ kotlin {
 }
 
 dependencies {
-    api(libs.ksp.process.api)
-    api(libs.ksp.poe)
+    api(vcl.ksp.process.api)
+    api(wings.gene.ksp.poe)
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
-    api(libs.google.auto.service.anno)
+    api(vcl.google.auto.service.anno)
 }
 
 group = "io.github.5gene"

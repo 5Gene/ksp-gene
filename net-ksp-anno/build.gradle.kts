@@ -2,7 +2,6 @@ import wing.property
 import wing.publishJavaMavenCentral
 
 plugins {
-    id("java-library")
     alias(vcl.plugins.kotlin.jvm)
 }
 
