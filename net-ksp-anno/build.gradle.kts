@@ -1,5 +1,6 @@
-import wing.property
-import wing.publishJavaMavenCentral
+import june.wing.GroupIdMavenCentral
+import june.wing.property
+import june.wing.publishJavaMavenCentral
 
 plugins {
     alias(vcl.plugins.kotlin.jvm)
@@ -18,7 +19,7 @@ dependencies {
     api("com.squareup.retrofit2:retrofit:2.5.0")
 }
 
-group = "io.github.5gene"
+group = GroupIdMavenCentral
 version = wings.versions.gene.net.ksp.anno.get()
 
 if (property("publish.ksp", "") == "repository") {

@@ -1,6 +1,7 @@
+import june.wing.GroupIdMavenCentral
+import june.wing.property
+import june.wing.publishJavaMavenCentral
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import wing.property
-import wing.publishJavaMavenCentral
 
 plugins {
     alias(vcl.plugins.kotlin.jvm)
@@ -30,7 +31,7 @@ dependencies {
     api(vcl.google.auto.service.anno)
 }
 
-group = "io.github.5gene"
+group = GroupIdMavenCentral
 version = wings.versions.gene.ksp.poe.get()
 
 if (property("publish.ksp", "") == "poe") {
