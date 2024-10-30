@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.CodeBlock.Builder
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
@@ -143,120 +144,123 @@ fun topLevelFuncMember(packageName: String, funcName: String) = MemberName(packa
 
 /**
  * 顶级函数
- * "kotlin.collections.emptyList".topLevelFuncMember()
+ * "kotlin.collections.emptyList".topLevelFunc()
  */
 fun String.topLevelFunc(): MemberName {
     val dotIndex = this.lastIndexOf(".")
     return MemberName(substring(0, dotIndex), substring(dotIndex + 1))
 }
 
-/**
- * 样例：
- * ```
- * "java.lang.System.currentTimeMillis".invokeJavaStaticFunc()
- * ```
- * 生成：
- * ```
- * java.lang.System.currentTimeMillis()
- * ```
- */
-context(CodeBlock.Builder)
-fun String.invokeJavaStaticFunc(vararg params: String) {
-    val dotIndex = this.lastIndexOf(".")
-    val staticFunc = substring(dotIndex + 1)
-    val javaClass = substring(0, dotIndex).toClassName()
-    if (params.isEmpty()) {
-        add("%T.$staticFunc()\n", javaClass)
-    } else {
-        val paramStr = params.joinToString(",")
-        add("%T.$staticFunc($paramStr)\n", javaClass)
-    }
-}
 //需要自动导包就要用ClassName()，占位符为%T
 //顶级函数需要用MemberName()，占位符为%M
 
-/**
- * 样例：
- * ```
- * "gene.net.repository.retrofitProvider".invokeTopLevelFunc()
- * ```
- * 生成：
- * ```
- * gene.net.repository.retrofitProvider()
- * ```
- */
-context(CodeBlock.Builder)
-fun String.invokeTopLevelFunc(vararg params: String) {
-    val topFunc = this.toMemberName()
-    if (params.isEmpty()) {
-        add("%M()\n", topFunc)
-    } else {
-        val paramStr = params.joinToString(",")
-        add("%M($paramStr)\n", topFunc)
+public inline fun buildCodeBlock(builderAction: CodeBlockBuilder.() -> Unit): CodeBlock {
+    return CodeBlockBuilder(CodeBlock.builder()).apply(builderAction).build()
+}
+
+class CodeBlockBuilder(val builder: Builder) {
+    fun build(): CodeBlock {
+        return builder.build()
     }
-}
 
-/**
- * 样例：
- * ```
- * "val ret = gene.net.repository.retrofitProvider().create"("com.example.DataPacksNetApi::class.java")
- *```
- * 生成：
- * ```
- * val ret = gene.net.repository.retrofitProvider().create"(com.example.DataPacksNetApi::class.java)
- * ```
- */
-context(CodeBlock.Builder)
-operator fun String.invoke(vararg params: String) {
-    if (params.isEmpty()) {
-        add("${this}()\n")
-    } else {
-        val paramStr = params.joinToString(",")
-        add("${this}($paramStr)\n")
+    /**
+     * 样例：
+     * ```
+     * "java.lang.System.currentTimeMillis".invokeJavaStaticFunc()
+     * ```
+     * 生成：
+     * ```
+     * java.lang.System.currentTimeMillis()
+     * ```
+     */
+    fun String.invokeJavaStaticFunc(vararg params: String) {
+        val dotIndex = this.lastIndexOf(".")
+        val staticFunc = substring(dotIndex + 1)
+        val javaClass = substring(0, dotIndex).toClassName()
+        if (params.isEmpty()) {
+            builder.add("%T.$staticFunc()\n", javaClass)
+        } else {
+            val paramStr = params.joinToString(",")
+            builder.add("%T.$staticFunc($paramStr)\n", javaClass)
+        }
     }
-}
 
-/**
- * 样例：
- * ```
- * +"java.lang.System.currentTimeMillis()"
- * ```
- * 生成：
- * ```
- * java.lang.System.currentTimeMillis()
- * ```
- */
-context(CodeBlock.Builder)
-operator fun String.unaryPlus() {
-    add("${this}\n")
-}
+    /**
+     * 样例：
+     * ```
+     * "gene.net.repository.retrofitProvider".invokeTopLevelFunc()
+     * ```
+     * 生成：
+     * ```
+     * gene.net.repository.retrofitProvider()
+     * ```
+     */
+    fun String.invokeTopLevelFunc(vararg params: String) {
+        val topFunc = this.toMemberName()
+        if (params.isEmpty()) {
+            builder.add("%M()\n", topFunc)
+        } else {
+            val paramStr = params.joinToString(",")
+            builder.add("%M($paramStr)\n", topFunc)
+        }
+    }
+
+    /**
+     * 样例：
+     * ```
+     * "val ret = gene.net.repository.retrofitProvider().create"("com.example.DataPacksNetApi::class.java")
+     *```
+     * 生成：
+     * ```
+     * val ret = gene.net.repository.retrofitProvider().create(com.example.DataPacksNetApi::class.java)
+     * ```
+     */
+    operator fun String.invoke(vararg params: String) {
+        if (params.isEmpty()) {
+            builder.add("${this}()\n")
+        } else {
+            val paramStr = params.joinToString(",")
+            builder.add("${this}($paramStr)\n")
+        }
+    }
+
+    /**
+     * 样例：
+     * ```
+     * +"java.lang.System.currentTimeMillis()"
+     * ```
+     * 生成：
+     * ```
+     * java.lang.System.currentTimeMillis()
+     * ```
+     */
+    operator fun String.unaryPlus() {
+        builder.add("${this}\n")
+    }
 
 
-/**
- * kotlin顶级函数用
- */
-context(CodeBlock.Builder)
-fun String.M(vararg memberName: MemberName) {
-    add("$this\n", *memberName)
-}
+    /**
+     * kotlin顶级函数用
+     */
+    fun String.M(vararg memberName: MemberName) {
+        builder.add("$this\n", *memberName)
+    }
 
-/**
- * 完整类名用
- */
-context(CodeBlock.Builder)
-fun String.T(vararg className: ClassName) {
-    add("$this\n", *className)
-}
+    /**
+     * 完整类名用
+     */
+    fun String.T(vararg className: ClassName) {
+        builder.add("$this\n", *className)
+    }
 
-/**
- * 格式化
- */
-context(CodeBlock.Builder)
-fun String.codeFormat(vararg args: Any) {
-    add("$this\n", *args)
-}
+    /**
+     * 格式化
+     */
+    fun String.codeFormat(vararg args: Any) {
+        builder.add("$this\n", *args)
+    }
 
-context(CodeBlock.Builder)
-fun String.cf(vararg args: Any) {
-    add("$this\n", *args)
+    fun String.cf(vararg args: Any) {
+        builder.add("$this\n", *args)
+    }
 }
