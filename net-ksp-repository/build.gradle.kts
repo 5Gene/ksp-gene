@@ -1,5 +1,4 @@
 import june.wing.GroupIdMavenCentral
-import june.wing.property
 import june.wing.publishJavaMavenCentral
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -37,9 +36,7 @@ kotlin {
 group = GroupIdMavenCentral
 version = wings.versions.gene.net.ksp.repository.get()
 
-if (property("publish.ksp", "") == "repository") {
-    publishJavaMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀")
-}
+publishJavaMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀")
 
 
 //KSFile

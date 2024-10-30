@@ -1,5 +1,4 @@
 import june.wing.GroupIdMavenCentral
-import june.wing.property
 import june.wing.publishJavaMavenCentral
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -33,6 +32,4 @@ dependencies {
 group = GroupIdMavenCentral
 version = wings.versions.gene.ksp.poe.get()
 
-if (property("publish.ksp", "") == "poe") {
-    publishJavaMavenCentral("ksp poe wings")
-}
+publishJavaMavenCentral("ksp poe wings")

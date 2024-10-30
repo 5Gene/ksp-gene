@@ -1,5 +1,4 @@
 import june.wing.GroupIdMavenCentral
-import june.wing.property
 import june.wing.publishJavaMavenCentral
 
 plugins {
@@ -22,6 +21,4 @@ dependencies {
 group = GroupIdMavenCentral
 version = wings.versions.gene.net.ksp.anno.get()
 
-if (property("publish.ksp", "") == "repository") {
-    publishJavaMavenCentral("annotation for NetSource")
-}
+publishJavaMavenCentral("annotation for NetSource")
