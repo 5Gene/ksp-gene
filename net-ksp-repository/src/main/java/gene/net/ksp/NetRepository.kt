@@ -11,7 +11,6 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.validate
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -19,20 +18,17 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
-import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import june.ksp.asPackageName
 import june.ksp.asSimpleName
 import june.ksp.fileName
-import june.ksp.poe.T
+import june.ksp.poe.CodeBlockBuilder
 import june.ksp.poe.addAnnoParams
-import june.ksp.poe.cf
-import june.ksp.poe.codeFormat
+import june.ksp.poe.buildCodeBlock
 import june.ksp.poe.paramWithMap
 import june.ksp.poe.toClassName
 import june.ksp.poe.topLevelFunc
-import june.ksp.poe.unaryPlus
 import june.ksp.readAnnotations
 
 const val NET_SOURCE_ANNO = "gene.net.anno.NetSource"
@@ -109,7 +105,6 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
             """.trimIndent()
             )
         }
-
         val symbolsWithAnnotation = resolver.getSymbolsWithAnnotation(NET_SOURCE_ANNO)
         if (symbolsWithAnnotation.toList().isEmpty()) {
             return emptyList()
@@ -125,6 +120,9 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
     private fun generateNetService(dataStructs: List<NetDataStruct>) {
         val dataStruct = dataStructs.first()
         val netApiClassName = "${dataStruct.fileName}NetApi"
+
+        environment.logger.info("generateNetService --> $netApiClassName")
+
         val interfaceBuilder = TypeSpec.interfaceBuilder(netApiClassName).addModifiers(KModifier.PRIVATE)
         val retrofit = "gene.net.anno.retrofitProvider".topLevelFunc()
         val objectBuilder = TypeSpec
@@ -216,7 +214,7 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
         log(toString())
     }
 
-    private fun CodeBlock.Builder.returnBody() {
+    private fun CodeBlockBuilder.returnBody() {
         """
 if (!netResult.isOk()) {
     throw %T(netResult.message())

@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(vcl.plugins.kotlin.jvm)
+    alias(vcl.plugins.ksp)
 }
 
 buildscript {
@@ -12,9 +13,14 @@ buildscript {
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    //每次都执行ksp
+    outputs.upToDateWhen { false }
+}
+
 dependencies {
+    ksp(vcl.gene.auto.service)
     implementation(wings.gene.ksp.poe)
-    implementation(vcl.gene.auto.service)
     implementation(vcl.ksp.process.api)
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     implementation(vcl.google.auto.service.anno)

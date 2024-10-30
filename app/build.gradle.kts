@@ -14,13 +14,17 @@ android {
     namespace = "com.example.auto.service"
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    //每次都执行ksp
+    outputs.upToDateWhen { false }
+}
+
 dependencies {
     implementation(project(":net-ksp-anno"))
     "ksp"(project(":net-ksp-repository"))
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     implementation("com.squareup.retrofit2:retrofit:2.5.0")
-
 }
 
 //Retrofit retrofit = new Retrofit.Builder()
