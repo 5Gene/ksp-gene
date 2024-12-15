@@ -9,26 +9,13 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.validate
-import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import june.ksp.asPackageName
-import june.ksp.asSimpleName
 import june.ksp.fileName
-import june.ksp.poe.CodeBlockBuilder
-import june.ksp.poe.addAnnoParams
-import june.ksp.poe.buildCodeBlock
-import june.ksp.poe.paramWithMap
-import june.ksp.poe.toClassName
-import june.ksp.poe.topLevelFunc
+import june.ksp.poe.*
 import june.ksp.readAnnotations
 
 const val NET_SOURCE_ANNO = "gene.net.anno.NetSource"
@@ -150,18 +137,17 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
             val checkResult by it.netSourceAnno
             val isListResult = list.toBoolean()
             val needCheckResult = checkResult.toBoolean()
-
             val paths = findPath.findAll(path).map { it.groupValues[1] }.toList()
+            val funName = path.substringAfterLast("/")
 
-            val className = it.ksClass.asSimpleName()
-            val (annotationSpec, funName) = if (method.equals("get", true)) {
-                AnnotationSpec.builder(GET).addMember("\"$path\"").build() to "get${className.replaceFirstChar(Char::titlecase)}"
+            val annotationSpec = if (method.equals("get", true)) {
+                AnnotationSpec.builder(GET).addMember("\"$path\"").build()
             } else if (method.equals("post", true)) {
-                AnnotationSpec.builder(POST).addMember("\"$path\"").build() to "post${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(POST).addMember("\"$path\"").build()
             } else if (method.equals("put", true)) {
-                AnnotationSpec.builder(PUT).addMember("\"$path\"").build() to "put${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(PUT).addMember("\"$path\"").build()
             } else if (method.equals("delete", true)) {
-                AnnotationSpec.builder(DELETE).addMember("\"$path\"").build() to "del${className.replaceFirstChar(Char::titlecase)}"
+                AnnotationSpec.builder(DELETE).addMember("\"$path\"").build()
             } else {
                 throw RuntimeException("not support $method")
             }
