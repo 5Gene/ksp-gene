@@ -45,7 +45,7 @@ kotlin {
 //https://kotlinlang.org/docs/ksp-incremental.html#aggregating-vs-isolating
 
 group = GroupIdMavenCentral
-version = wings.versions.gene.net.ksp.repository.get()
+version = wings.versions.gene.retrofit.ksp.asProvider().get()
 
 publishJavaMavenCentral("ksp library for Retrofit,auto generate ServiceApi for data bean 🚀")
 

@@ -1,4 +1,4 @@
-package gene.net.ksp
+package gene.retrofit.ksp
 
 import com.google.auto.service.AutoService
 import com.google.devtools.ksp.processing.Resolver
@@ -18,12 +18,12 @@ import june.ksp.poe.toClassName
 import june.ksp.poe.topLevelFunc
 import june.ksp.readAnnotations
 
-const val NET_SOURCE_ANNO = "gene.net.anno.NetSource"
+const val NET_SOURCE_ANNO = "gene.retrofit.anno.NetSource"
 
 @AutoService(SymbolProcessorProvider::class)
-class NetRepositorySymbolProcessorProvider : SymbolProcessorProvider {
+class KspRetrofitSymbolProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-        return NetRepositorySymbolProcessor(environment)
+        return KspRetrofitSymbolProcessor(environment)
     }
 }
 
@@ -43,9 +43,9 @@ val PUT = "retrofit2.http.PUT".toClassName()
 val DELETE = "retrofit2.http.DELETE".toClassName()
 
 val findPath = """\{(.*?)\}""".toRegex()
-val Exception = "gene.net.anno.NetResultException".toClassName()
+val Exception = "gene.retrofit.anno.NetException".toClassName()
 
-class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
+class KspRetrofitSymbolProcessor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
 
     //    private val NetResulcClass: ClassName by lazy { ClassName.bestGuess(environment.options["NetResult"]!!) }
     private val netResultClass: ClassName by lazy { environment.options["NetResult"]!!.toClassName() }
@@ -93,7 +93,7 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
         environment.logger.warn("generateNetService --> $netApiClassName")
 
         val interfaceBuilder = TypeSpec.interfaceBuilder(netApiClassName).addModifiers(KModifier.PRIVATE)
-        val retrofit = "gene.net.anno.retrofitProvider".topLevelFunc()
+        val retrofit = "gene.retrofit.anno.retrofitProvider".topLevelFunc()
         val objectBuilder = TypeSpec
             .objectBuilder("${dataStruct.fileName}NetSource")
             .addProperty(
@@ -127,7 +127,7 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
         }
 
         val fileSpec = FileSpec.builder(dataStruct.packageName, "${dataStruct.fileName}NetSource")
-//            .addImport("gene.net.anno".toClassName(),"INetResult")
+//            .addImport("gene.retrofit.anno".toClassName(),"INetResult")
             .addType(interfaceBuilder.build())
             .addType(objectBuilder.build())
             .build()

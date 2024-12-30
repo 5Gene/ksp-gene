@@ -233,11 +233,11 @@ class CodeBlockBuilder(val builder: Builder) {
     /**
      * 样例：
      * ```
-     * "gene.net.repository.retrofitProvider".invokeTopLevelFunc()
+     * "gene.retrofit.repository.retrofitProvider".invokeTopLevelFunc()
      * ```
      * 生成：
      * ```
-     * gene.net.repository.retrofitProvider()
+     * gene.retrofit.repository.retrofitProvider()
      * ```
      */
     fun String.invokeTopLevelFunc(vararg params: String) {
@@ -253,11 +253,11 @@ class CodeBlockBuilder(val builder: Builder) {
     /**
      * 样例：
      * ```
-     * "val ret = gene.net.repository.retrofitProvider().create"("com.example.DataPacksNetApi::class.java")
+     * "val ret = gene.retrofit.repository.retrofitProvider().create"("com.example.DataPacksNetApi::class.java")
      *```
      * 生成：
      * ```
-     * val ret = gene.net.repository.retrofitProvider().create(com.example.DataPacksNetApi::class.java)
+     * val ret = gene.retrofit.repository.retrofitProvider().create(com.example.DataPacksNetApi::class.java)
      * ```
      */
     operator fun String.invoke(vararg params: String) {

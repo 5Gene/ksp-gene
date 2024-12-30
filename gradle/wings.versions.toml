@@ -2,13 +2,13 @@
 
 [versions]
 gene-ksp-poe = "1.1"
-gene-net-ksp-repository = "1.1"
-gene-net-ksp-anno = "1.1"
+gene-retrofit-ksp = "1.1"
+gene-retrofit-ksp-anno = "1.1"
 
 [libraries]
 gene-ksp-poe = { module = "io.github.5gene:ksp-poe", version.ref = "gene-ksp-poe" }
-gene-net-ksp-repository = { module = "io.github.5gene:net-ksp-repository", version.ref = "gene-net-ksp-repository" }
-gene-net-ksp-anno = { module = "io.github.5gene:net-ksp-anno", version.ref = "gene-net-ksp-anno" }
+gene-retrofit-ksp = { module = "io.github.5gene:retrofit-ksp", version.ref = "gene-retrofit-ksp" }
+gene-retrofit-ksp-anno = { module = "io.github.5gene:retrofit-ksp-anno", version.ref = "gene-retrofit-ksp-anno" }
 
 [bundles]
 

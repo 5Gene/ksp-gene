@@ -19,6 +19,6 @@ dependencies {
 }
 
 group = GroupIdMavenCentral
-version = wings.versions.gene.net.ksp.anno.get()
+version = wings.versions.gene.retrofit.ksp.anno.get()
 
 publishJavaMavenCentral("annotation for NetSource")

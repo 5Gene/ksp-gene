@@ -21,8 +21,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
-    implementation(project(":net-ksp-anno"))
-    "ksp"(project(":net-ksp-repository"))
+    implementation(project(":retrofit-ksp-anno"))
+    "ksp"(project(":retrofit-ksp"))
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     implementation("com.squareup.retrofit2:retrofit:2.5.0")

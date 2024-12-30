@@ -1,4 +1,4 @@
-package gene.net.ksp
+package gene.retrofit.ksp
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
@@ -105,8 +105,8 @@ fun TypeSpec.Builder.addRestApiImplFunction(
 ) {
     val extra by netSourceAnno
     val params by netSourceAnno
-    val checkResult by netSourceAnno
-    val needCheckResult = checkResult.toBoolean()
+    val check by netSourceAnno
+    val needCheckResult = check.toBoolean()
 
     val path by netSourceAnno
     val funName = path.substringAfterLast("/")
@@ -126,7 +126,6 @@ return netResult.body()
     )
 
     funcBuilder.addCode(buildCodeBlock {
-
         val actualParams = if (wantParams.endsWith("params")) {
             //没定义接口具体参数
             wantParams

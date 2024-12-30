@@ -1,12 +1,12 @@
 package com.example.ksptt
 
-import gene.net.anno.INetResult
-import gene.net.anno.NetSource
+import gene.retrofit.anno.INetResult
+import gene.retrofit.anno.NetSource
 
 @NetSource("post", "/user/{id}/combo")
 data class TestDTO(val name: String)
 
-@NetSource("get", "/{user}/{id}/combobuy", true, extra = "jiami", checkResult = false)
+@NetSource("get", "/{user}/{id}/combobuy", true, extra = "jiami", check = false)
 data class TestBean(val name: String)
 
 

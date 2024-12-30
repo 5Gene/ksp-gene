@@ -1,6 +1,6 @@
 package com.example
 
-import gene.net.anno.NetSource
+import gene.retrofit.anno.NetSource
 
 @NetSource("post", "/{user}/{id}/findAll", params = "who,age")
 @NetSource("post", "/{user}/check", params = "who,id")
