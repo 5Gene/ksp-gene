@@ -1,9 +1,9 @@
 #https://github.com/terrakok/kmp-awesome
 
 [versions]
-gene-ksp-poe = "1.0"
-gene-net-ksp-repository = "1.0.1"
-gene-net-ksp-anno = "1.0.1"
+gene-ksp-poe = "1.1"
+gene-net-ksp-repository = "1.1"
+gene-net-ksp-anno = "1.1"
 
 [libraries]
 gene-ksp-poe = { module = "io.github.5gene:ksp-poe", version.ref = "gene-ksp-poe" }

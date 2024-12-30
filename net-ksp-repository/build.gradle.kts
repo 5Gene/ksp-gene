@@ -13,6 +13,11 @@ buildscript {
     }
 }
 
+ksp {
+    arg("ksp.logLevel", "info")
+}
+
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     //每次都执行ksp
     outputs.upToDateWhen { false }
@@ -21,6 +26,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 dependencies {
     ksp(vcl.gene.auto.service)
     implementation(wings.gene.ksp.poe)
+//    implementation(project(":ksp-poe"))
     implementation(vcl.ksp.process.api)
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
     implementation(vcl.google.auto.service.anno)

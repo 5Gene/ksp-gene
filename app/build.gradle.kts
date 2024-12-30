@@ -9,6 +9,7 @@ plugins {
 ksp {
     arg("NetResult", "com.example.ksptt.NetResult")
     arg("option2", "value2")
+    arg("ksp.logLevel", "info")
 }
 android {
     namespace = "com.example.auto.service"

@@ -1,24 +1,57 @@
 package june.ksp.poe
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.CodeBlock.Builder
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.MemberName
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import kotlin.reflect.KClass
+
+fun listWithType(typeName: TypeName): ParameterizedTypeName {
+    return List::class.asTypeName().parameterizedBy(typeName)
+}
+
+fun mapWithType(keyClassName: TypeName, valueClassName: TypeName): ParameterizedTypeName {
+    return Map::class.asTypeName().parameterizedBy(
+        keyClassName,
+        valueClassName
+    )
+}
+
+fun CodeBlockBuilder.mapOfBuilder(refName: String, params: List<String>) {
+    builder.apply {
+        mapOfBuilder(refName, params)
+    }
+}
+
+fun CodeBlock.Builder.mapOfBuilder(refName: String, params: List<String>) {
+    val mapOf = MemberName("kotlin.collections", "mapOf")
+    val to = MemberName("kotlin", "to")
+    add("val $refName = %M(\n", mapOf)
+    params.forEach { k ->
+        add("   %S %M $k,\n", k, to)
+    }
+    add(")\n")
+}
+
+fun CodeBlockBuilder.listOfBuilder(refName: String, params: List<String>) {
+    builder.apply {
+        listOfBuilder(refName, params)
+    }
+}
+
+fun CodeBlock.Builder.listOfBuilder(refName: String, values: List<String>) {
+    listOf<String>("a", "b", "c")
+    MemberName("kotlin.collections", "listOf")
+    val listOf = MemberName("kotlin.collections", "listOf")
+    add("val $refName = %M(%s)\n", listOf, values.joinToString(","))
+}
 
 /**
  * A<T>
  * 泛型 parameterizedBy
  */
-fun ClassName.fanxing(T: ClassName) = this.parameterizedBy(T)
+fun ClassName.fanxing(vararg typeArguments: TypeName) = this.parameterizedBy(*typeArguments)
 
 /**
  * 方法添加参数,参数支持注解,注解的参数和方法参数名一致
@@ -51,6 +84,17 @@ fun FunSpec.Builder.addAnnoParams(annoType: ClassName, params: List<String> = em
                     .addMember("%S", it)
                     .build()
             )
+            .build()
+        addParameter(parameter)
+    }
+}
+
+fun FunSpec.Builder.addStringParams(params: List<String> = emptyList<String>()) {
+    params.forEach {
+        // 创建`id`参数
+        val parameter = ParameterSpec
+            .builder(it, String::class)
+            .defaultValue("%S", "")
             .build()
         addParameter(parameter)
     }
@@ -97,7 +141,8 @@ fun paramWithMap(paramName: String, default: Boolean) = paramWithMap(
  * 构建类型为`List`的方法参数并带默认值
  * fun(paramName: List<valueClass>=emptyList())
  */
-fun paramWithList(paramName: String, valueClass: KClass<*>, default: Boolean) = paramWithList(paramName, valueClass.asTypeName(), default)
+fun paramWithList(paramName: String, valueClass: KClass<*>, default: Boolean) =
+    paramWithList(paramName, valueClass.asTypeName(), default)
 
 /**
  * 构建类型为`List`的方法参数并带默认值

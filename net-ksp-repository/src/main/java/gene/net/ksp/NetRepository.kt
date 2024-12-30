@@ -10,12 +10,12 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.validate
 import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import june.ksp.asPackageName
 import june.ksp.fileName
-import june.ksp.poe.*
+import june.ksp.poe.buildCodeBlock
+import june.ksp.poe.toClassName
+import june.ksp.poe.topLevelFunc
 import june.ksp.readAnnotations
 
 const val NET_SOURCE_ANNO = "gene.net.anno.NetSource"
@@ -31,8 +31,8 @@ class NetRepositorySymbolProcessorProvider : SymbolProcessorProvider {
  * 文件名, 文件, 类 ,多个注解
  */
 data class NetDataStruct(
-    val fileName: String, val ksFile: KSFile, val packageName: String, val ksClass: KSClassDeclaration, val netSourceAnno:
-    Map<String, String>
+    val fileName: String, val ksFile: KSFile, val packageName: String,
+    val ksClass: KSClassDeclaration, val netSourceAnnos: List<Map<String, String>>
 )
 
 val Path = "retrofit2.http.Path".toClassName()
@@ -45,37 +45,11 @@ val DELETE = "retrofit2.http.DELETE".toClassName()
 val findPath = """\{(.*?)\}""".toRegex()
 val Exception = "gene.net.anno.NetResultException".toClassName()
 
-fun retrofitFunBuild(
-    name: String,
-    isList: Boolean,
-    ksClass: KSClassDeclaration,
-    netResultClass: ClassName?,
-    default: Boolean,
-    paths: List<String> = emptyList()
-): Pair<FunSpec.Builder, String> {
-    val funBuilder = FunSpec.builder(name).addModifiers(KModifier.SUSPEND)
-    val params = mutableListOf<String>()
-    params.addAll(paths)
-    funBuilder.addAnnoParams(Path, paths)
-    val queryMap = paramWithMap("params", default).addAnnotation(QueryMap).build()
-    params.add("params")
-    funBuilder.addParameter(queryMap)
-    val resultClass = ksClass.toClassName()
-    if (isList) {
-        val listResult = List::class.asTypeName().parameterizedBy(resultClass)
-        funBuilder.returns(
-            netResultClass?.parameterizedBy(listResult) ?: listResult
-        )
-    } else {
-        funBuilder.returns(netResultClass?.parameterizedBy(resultClass) ?: resultClass)
-    }
-    return funBuilder to params.joinToString(",")
-}
-
 class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
 
     //    private val NetResulcClass: ClassName by lazy { ClassName.bestGuess(environment.options["NetResult"]!!) }
-    private val NetResulcClass: ClassName by lazy { environment.options["NetResult"]!!.toClassName() }
+    private val netResultClass: ClassName by lazy { environment.options["NetResult"]!!.toClassName() }
+    private val exceptionClass: ClassName by lazy { environment.options["Exception"]?.toClassName() ?: Exception }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         if (!environment.options.containsKey("NetResult")) {
@@ -97,18 +71,26 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
             return emptyList()
         }
         symbolsWithAnnotation.filter { it.validate() }
+            //找到所有注解的文件
             .filterIsInstance<KSClassDeclaration>()
             .map {
-                NetDataStruct(it.fileName(), it.containingFile!!, it.asPackageName(), it, it.readAnnotations(NET_SOURCE_ANNO)!!)
-            }.groupBy { it.fileName }.map { it.value }.forEach(::generateNetService)
+                //找到文件中的所有注解，并收集注解参数
+                NetDataStruct(
+                    it.fileName(),
+                    it.containingFile!!, it.asPackageName(),
+                    it,
+                    it.readAnnotations(NET_SOURCE_ANNO)
+                )
+            }.groupBy { it.fileName }
+            .map { it.value }
+            .forEach(::generateNetService)
         return emptyList()
     }
 
     private fun generateNetService(dataStructs: List<NetDataStruct>) {
         val dataStruct = dataStructs.first()
         val netApiClassName = "${dataStruct.fileName}NetApi"
-
-        environment.logger.info("generateNetService --> $netApiClassName")
+        environment.logger.warn("generateNetService --> $netApiClassName")
 
         val interfaceBuilder = TypeSpec.interfaceBuilder(netApiClassName).addModifiers(KModifier.PRIVATE)
         val retrofit = "gene.net.anno.retrofitProvider".topLevelFunc()
@@ -119,69 +101,29 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
                     "retrofit",
                     ClassName(dataStruct.packageName, netApiClassName),
                     KModifier.PRIVATE
-                ).delegate(buildCodeBlock {
-                    //delegate会自己带by关键字
-                    "lazy { %M(%S).create(%N::class.java) }".codeFormat(retrofit, "", netApiClassName)
-                }).build()
+                ).delegate(
+                    buildCodeBlock {
+                        //delegate会自己带by关键字
+                        "lazy { %M(%S).create(%N::class.java) }".codeFormat(retrofit, "", netApiClassName)
+                    }
+                ).build()
 //                    .initializer(buildCodeBlock {
 //                        "%M(%S).create(%N::class.java)".codeFormat(retrofit, "", netApiClassName)
 //                    })
             )
 
-
         dataStructs.forEach {
-            val method by it.netSourceAnno
-            val path by it.netSourceAnno
-            val list by it.netSourceAnno
-            val extra by it.netSourceAnno
-            val checkResult by it.netSourceAnno
-            val isListResult = list.toBoolean()
-            val needCheckResult = checkResult.toBoolean()
-            val paths = findPath.findAll(path).map { it.groupValues[1] }.toList()
-            val funName = path.substringAfterLast("/")
-
-            val annotationSpec = if (method.equals("get", true)) {
-                AnnotationSpec.builder(GET).addMember("\"$path\"").build()
-            } else if (method.equals("post", true)) {
-                AnnotationSpec.builder(POST).addMember("\"$path\"").build()
-            } else if (method.equals("put", true)) {
-                AnnotationSpec.builder(PUT).addMember("\"$path\"").build()
-            } else if (method.equals("delete", true)) {
-                AnnotationSpec.builder(DELETE).addMember("\"$path\"").build()
-            } else {
-                throw RuntimeException("not support $method")
+            environment.logger.warn("generateNetService --> dataStructs:${it.netSourceAnnos}")
+            it.netSourceAnnos.forEach { netSourceAnno ->
+                interfaceBuilder.addRestApiFunction(
+                    netSourceAnno, it.ksClass, netResultClass
+                )
+                objectBuilder.addRestApiImplFunction(
+                    netSourceAnno, it.ksClass,
+                    netResultClass, retrofit,
+                    netApiClassName, exceptionClass
+                )
             }
-
-            val resultWrapper = if (needCheckResult) null else NetResulcClass
-            //接口层必须固定返回NetResult<D>
-            val (retrofitAbsFunBuild, _) = retrofitFunBuild(funName, isListResult, it.ksClass, NetResulcClass, false, paths)
-            retrofitAbsFunBuild
-                .addModifiers(KModifier.ABSTRACT)
-                .addAnnotation(annotationSpec)
-            interfaceBuilder.addFunction(retrofitAbsFunBuild.build())
-
-            val (retrofitFunBuild, paramStrs) = retrofitFunBuild(funName, isListResult, it.ksClass, resultWrapper, true, paths)
-            objectBuilder.addFunction(
-                retrofitFunBuild
-                    .addCode(buildCodeBlock {
-                        if (extra.isEmpty()) {
-//                            add("return retrofit.%N(${paramStrs})\n",funName)
-                            if (needCheckResult) {
-                                +"val netResult = retrofit.$funName(${paramStrs})"
-                                returnBody()
-                            } else {
-                                +"return retrofit.$funName(${paramStrs})"
-                            }
-                        } else {
-                            if (needCheckResult) {
-                                "val netResult = %M(%S).create(%N::class.java).%N(${paramStrs})".cf(retrofit, extra, netApiClassName, funName)
-                                returnBody()
-                            } else {
-                                "return %M(%S).create(%N::class.java).%N(${paramStrs})".codeFormat(retrofit, extra, netApiClassName, funName)
-                            }
-                        }
-                    }).build()
-            )
         }
 
         val fileSpec = FileSpec.builder(dataStruct.packageName, "${dataStruct.fileName}NetSource")
@@ -194,18 +136,5 @@ class NetRepositorySymbolProcessor(private val environment: SymbolProcessorEnvir
 
     private fun log(log: String) {
         environment.logger.warn(log)
-    }
-
-    fun Any.log() {
-        log(toString())
-    }
-
-    private fun CodeBlockBuilder.returnBody() {
-        """
-if (!netResult.isOk()) {
-    throw %T(netResult.message())
-}
-return netResult.body()
-        """.trim().T(Exception)
     }
 }

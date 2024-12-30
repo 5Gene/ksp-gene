@@ -21,10 +21,16 @@ fun KSDeclaration.asPackageName() = packageName.asString()
 
 fun KSDeclaration.asSimpleName() = simpleName.asString()
 
-fun KSClassDeclaration.readAnnotations(annotationFullName: String): Map<String, String>? {
+/**
+ * 找到文件中所有注解，并收集注解参数
+ */
+fun KSClassDeclaration.readAnnotations(annotationFullName: String): List<Map<String, String>> {
     return annotations
-        .find { it.annotationType.asClassName() == annotationFullName }
-        ?.arguments?.associate { it.name!!.getShortName() to it.value!!.toString() }
+        .filter { it.annotationType.asClassName() == annotationFullName }
+        .map {
+            it.arguments.associate { it.name!!.getShortName() to it.value!!.toString() }
+        }.toList()
+
 }
 
 val String.lookDown: String

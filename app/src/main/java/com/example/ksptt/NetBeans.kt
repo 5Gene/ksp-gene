@@ -11,6 +11,10 @@ data class TestBean(val name: String)
 
 
 data class NetResult<T>(val code: Int, val data: T) : INetResult<T> {
+    override fun code(): Int {
+        TODO("Not yet implemented")
+    }
+
     override fun isOk(): Boolean {
         TODO("Not yet implemented")
     }
