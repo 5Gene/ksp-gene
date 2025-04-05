@@ -31,8 +31,11 @@ class KspRetrofitSymbolProcessorProvider : SymbolProcessorProvider {
  * 文件名, 文件, 类 ,多个注解
  */
 data class NetDataStruct(
-    val fileName: String, val ksFile: KSFile, val packageName: String,
-    val ksClass: KSClassDeclaration, val netSourceAnnos: List<Map<String, String>>
+    val fileName: String,
+    val ksFile: KSFile,
+    val packageName: String,
+    val ksClass: KSClassDeclaration,
+    val netSourceAnnos: List<Map<String, String>>
 )
 
 val Path = "retrofit2.http.Path".toClassName()
@@ -104,7 +107,7 @@ class KspRetrofitSymbolProcessor(private val environment: SymbolProcessorEnviron
                 ).delegate(
                     buildCodeBlock {
                         //delegate会自己带by关键字
-                        "lazy { %M(%S).create(%N::class.java) }".codeFormat(retrofit, "", netApiClassName)
+                        "lazy { %M(%S).create(%N::class.java) \n}".codeFormat(retrofit, "", netApiClassName)
                     }
                 ).build()
 //                    .initializer(buildCodeBlock {
