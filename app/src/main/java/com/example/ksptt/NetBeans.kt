@@ -10,6 +10,11 @@ data class TestDTO(val name: String)
 data class TestBean(val name: String)
 
 
+@NetSource(path = "api/test/profile", check = false, list = true)
+@NetSource(path = "api/profile/update", params = "name,id", check = true)
+data class Profile(val name: String, val nickName: String, val avatar: String)
+
+
 data class NetResult<T>(val code: Int, val data: T) : INetResult<T> {
     override fun code(): Int {
         TODO("Not yet implemented")

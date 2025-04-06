@@ -20,9 +20,24 @@ import june.ksp.poe.paramWithMap
 
 /**
  * interface定义的接口函数名+参数+返回值
- * impl定义的接口函数名+参数+返回值
  */
 fun restApiFun(
+    netSourceAnno: Map<String, String>,
+    //返回值类型
+    resultKsClass: KSClassDeclaration,
+    //NetResult<T>类型, interface中必传，实现类中，可选
+    netResultClass: ClassName?,
+): FunSpec.Builder {
+    //api接口类中，参数固定成 @QueryMap params: Map<String, Any>
+    //在调用类中根据注解定义的参数构建成Map传入
+    //api接口类的方法和调用类的方法参数唯一的区别就是接口参数的形式
+    return invokeRestApiFun(netSourceAnno, resultKsClass, netResultClass).first
+}
+
+/**
+ * impl定义的接口函数名+参数+返回值
+ */
+fun invokeRestApiFun(
     netSourceAnno: Map<String, String>,
     //返回值类型
     resultKsClass: KSClassDeclaration,
@@ -37,6 +52,8 @@ fun restApiFun(
     val paths = findPath.findAll(path).map { it.groupValues[1] }.toList()
     val funName = path.substringAfterLast("/")
 
+    //接口需要的参数定义成map传入 @QueryMap params: Map<>
+    //调用处用于构造map并补充path
     val actualParams = mutableListOf<String>()
 
     val funBuilder = FunSpec.builder(funName).addModifiers(KModifier.SUSPEND).apply {
@@ -44,6 +61,7 @@ fun restApiFun(
         if (paths.isNotEmpty()) {
             //添加path参数
             addAnnoParams(Path, paths)
+            //外部调用此方法的时候需要传入path参数
             actualParams.addAll(paths)
         }
         if (params.isEmpty()) {
@@ -52,6 +70,7 @@ fun restApiFun(
                 .addAnnotation(QueryMap)
                 .build()
             addParameter(queryMap)
+            //没有指定参数，可能注解没写，要支持传入，定义params:Map<String,Any>
             actualParams.add("params")
         } else {
             //添加定义的接口请求参数
@@ -72,7 +91,6 @@ fun restApiFun(
         }
         //</editor-fold>
     }
-
     return funBuilder to actualParams.joinToString(",")
 }
 
@@ -99,7 +117,7 @@ fun TypeSpec.Builder.addRestApiFunction(
     }
 
     addFunction(
-        restApiFun(netSourceAnno, resultKsClass, netResultClass).first
+        restApiFun(netSourceAnno, resultKsClass, netResultClass)
             .addModifiers(KModifier.ABSTRACT)
             .addAnnotation(annotationSpec).build()
     )
@@ -131,23 +149,30 @@ return netResult.body()
         """.trim().T(exception)
     }
 
-    val (funcBuilder, wantParams) = restApiFun(
+    val (funcBuilder, wantParams) = invokeRestApiFun(
         netSourceAnno, resultKsClass,
         if (needCheckResult) null else netResultClass,
         params
     )
 
     funcBuilder.addCode(buildCodeBlock {
+        //wantParams 包括path,和接口参数 params列表
         val actualParams = if (wantParams.endsWith("params")) {
             //没定义接口具体参数
             wantParams
         } else {
+            //wantParams此时全是动态path字段
+            //有定义接口参数列表，需要吧参数定义成map，然后传给接口
             mapOfBuilder("params", params.split(","))
-            "$wantParams,params"
+            if (wantParams.isEmpty()) {
+                //没有动态的path字段
+                "params"
+            } else {
+                "$wantParams,params"
+            }
         }
 
         if (extra.isEmpty()) {
-//                            add("return retrofit.%N(${actualParams})\n",funName)
             if (needCheckResult) {
                 +"val netResult = retrofit.$funName(${actualParams})"
                 returnBody()
