@@ -2,7 +2,7 @@
 
 [versions]
 gene-ksp-poe = "1.1"
-gene-retrofit-ksp = "1.1"
+gene-retrofit-ksp = "1.2"
 gene-retrofit-ksp-anno = "1.1"
 
 [libraries]
