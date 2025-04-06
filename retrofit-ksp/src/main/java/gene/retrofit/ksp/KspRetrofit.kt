@@ -59,7 +59,7 @@ class KspRetrofitSymbolProcessor(private val environment: SymbolProcessorEnviron
             environment.logger.error(
                 """
                 you have to set "NetResult" by option as class name for read net response data
-                and the "NetResult" class must be subtype of INetResult
+                and the "NetResult" class must be subtype of gene.retrofit.anno.INetResult
                 for example:
                 
                 ksp {
