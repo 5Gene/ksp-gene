@@ -9,6 +9,7 @@ annotation class NetSource(
     val list: Boolean = false,
     val check: Boolean = true,
     val params: String = "",
+    val nullable: Boolean = false,
     val extra: String = ""
 )
 

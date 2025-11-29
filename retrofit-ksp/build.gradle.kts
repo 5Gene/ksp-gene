@@ -26,10 +26,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 dependencies {
     ksp(vcl.gene.auto.service)
     implementation(wings.gene.ksp.poe)
-//    implementation(project(":ksp-poe"))
+    implementation(project(":ksp-poe"))
     implementation(vcl.ksp.process.api)
     // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
-    implementation(vcl.google.auto.service.anno)
+//    implementation(vcl.google.auto.service.anno)
+    implementation(project(":retrofit-ksp-anno"))
 }
 
 kotlin {

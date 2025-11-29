@@ -1,24 +1,30 @@
 package june.ksp.poe
 
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.CodeBlock.Builder
+import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.MAP
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.ksp.toClassName
-import kotlin.reflect.KClass
+import com.squareup.kotlinpoet.TypeName
 
-fun listWithType(typeName: TypeName): ParameterizedTypeName {
-    return List::class.asTypeName().parameterizedBy(typeName)
+/**
+ * A<T>
+ * 泛型 parameterizedBy
+ */
+fun ClassName.fanxing(vararg typeArguments: TypeName) = parameterizedBy(*typeArguments)
+
+fun listWithType(typeName: TypeName): TypeName {
+    return LIST.fanxing(typeName)
 }
 
-fun mapWithType(keyClassName: TypeName, valueClassName: TypeName): ParameterizedTypeName {
-    return Map::class.asTypeName().parameterizedBy(
-        keyClassName,
-        valueClassName
-    )
+fun mapWithType(keyClassName: TypeName, valueClassName: TypeName): TypeName {
+    return MAP.fanxing(keyClassName, valueClassName)
 }
 
-fun CodeBlockBuilder.mapOfBuilder(refName: String, params: List<String>) {
+//Local variables
+fun CodeBlockBuilder.addLocalMapVariable(refName: String, params: List<String>) {
     builder.apply {
         mapOfBuilder(refName, params)
     }
@@ -46,118 +52,6 @@ fun CodeBlock.Builder.listOfBuilder(refName: String, values: List<String>) {
     val listOf = MemberName("kotlin.collections", "listOf")
     add("val $refName = %M(%s)\n", listOf, values.joinToString(","))
 }
-
-/**
- * A<T>
- * 泛型 parameterizedBy
- */
-fun ClassName.fanxing(vararg typeArguments: TypeName) = this.parameterizedBy(*typeArguments)
-
-/**
- * 方法添加参数,参数支持注解,注解的参数和方法参数名一致
- */
-fun FunSpec.Builder.addAnnoParams(annoType: KClass<out Annotation>, params: List<String> = emptyList<String>()) {
-    params.forEach {
-        // 创建`id`参数
-        val parameter = ParameterSpec.builder(it, String::class)
-            .addAnnotation(
-                AnnotationSpec.builder(annoType)
-                    .addMember("%S", it)
-                    .build()
-            )
-            .build()
-        addParameter(parameter)
-    }
-}
-
-/**
- * 给方法添加参数，参数带注解
- * fun(@annoType("param") param:String)
- */
-fun FunSpec.Builder.addAnnoParams(annoType: ClassName, params: List<String> = emptyList<String>()) {
-    params.forEach {
-        // 创建`id`参数
-        val parameter = ParameterSpec.builder(it, String::class)
-            .addAnnotation(
-                AnnotationSpec.builder(annoType)
-                    //%S，填充字符串 "$it"
-                    .addMember("%S", it)
-                    .build()
-            )
-            .build()
-        addParameter(parameter)
-    }
-}
-
-fun FunSpec.Builder.addStringParams(params: List<String> = emptyList<String>()) {
-    params.forEach {
-        // 创建`id`参数
-        val parameter = ParameterSpec
-            .builder(it, String::class)
-            .defaultValue("%S", "")
-            .build()
-        addParameter(parameter)
-    }
-}
-
-/**
- * 构建类型为Map的方法参数并带默认值
- * fun(paramName: Map<key:value>=emptyMap())
- */
-fun paramWithMap(paramName: String, keyClass: KClass<*>, valueClass: KClass<*>, default: Boolean) = paramWithMap(
-    paramName,
-    keyClass.asTypeName(),
-    valueClass.asTypeName(),
-    default
-)
-
-/**
- * 构建类型为Map的方法参数并带默认值
- * fun(paramName: Map<keyClassName:valueClassName>=emptyMap())
- */
-fun paramWithMap(paramName: String, keyClassName: TypeName, valueClassName: TypeName, default: Boolean) = ParameterSpec.builder(
-    paramName,
-    Map::class.asTypeName().parameterizedBy(
-        keyClassName,
-        valueClassName
-    )
-).also { if (default) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyMap")) }
-
-/**
- * 构建类型为`Map`的方法参数并带默认值
- * fun(paramName: Map<String:Any>=emptyMap())
- */
-fun paramWithMap(paramName: String, default: Boolean) = paramWithMap(
-    paramName,
-    String::class.asTypeName(),
-    Any::class.asTypeName().copy(
-        //不加这个注解retrofit调用会报错
-        annotations = listOf(AnnotationSpec.builder(JvmSuppressWildcards::class).build())
-    ),
-    default
-)
-
-/**
- * 构建类型为`List`的方法参数并带默认值
- * fun(paramName: List<valueClass>=emptyList())
- */
-fun paramWithList(paramName: String, valueClass: KClass<*>, default: Boolean) =
-    paramWithList(paramName, valueClass.asTypeName(), default)
-
-/**
- * 构建类型为`List`的方法参数并带默认值
- * fun(paramName: List<ksClassDeclaration>=emptyList())
- */
-fun paramWithList(paramName: String, ksClassDeclaration: KSClassDeclaration, default: Boolean) =
-    paramWithList(paramName, ksClassDeclaration.toClassName(), default)
-
-/**
- * 构建类型为`List`的方法参数并带默认值
- * fun(paramName: List<valueClassName>=emptyList())
- */
-fun paramWithList(paramName: String, valueClassName: TypeName, default: Boolean) = ParameterSpec.builder(
-    paramName, List::class.asTypeName().parameterizedBy(valueClassName)
-).also { if (default) it.defaultValue("%M()", MemberName("kotlin.collections", "emptyList")) }
 
 
 fun String.toClassName(): ClassName {
@@ -198,6 +92,7 @@ fun String.topLevelFunc(): MemberName {
 
 //需要自动导包就要用ClassName()，占位符为%T
 //顶级函数需要用MemberName()，占位符为%M
+
 
 public inline fun buildCodeBlock(builderAction: CodeBlockBuilder.() -> Unit): CodeBlock {
     return CodeBlockBuilder(CodeBlock.builder()).apply(builderAction).build()

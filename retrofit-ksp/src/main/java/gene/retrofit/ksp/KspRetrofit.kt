@@ -9,7 +9,11 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.validate
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.writeTo
 import june.ksp.asPackageName
 import june.ksp.fileName
@@ -40,6 +44,7 @@ data class NetDataStruct(
 
 val Path = "retrofit2.http.Path".toClassName()
 val QueryMap = "retrofit2.http.QueryMap".toClassName()
+val Body = "retrofit2.http.Body".toClassName()
 val GET = "retrofit2.http.GET".toClassName()
 val POST = "retrofit2.http.POST".toClassName()
 val PUT = "retrofit2.http.PUT".toClassName()
@@ -95,8 +100,11 @@ class KspRetrofitSymbolProcessor(private val environment: SymbolProcessorEnviron
         val netApiClassName = "${dataStruct.fileName}NetApi"
         environment.logger.warn("generateNetService --> $netApiClassName")
 
+        //interface 接口类
         val interfaceBuilder = TypeSpec.interfaceBuilder(netApiClassName).addModifiers(KModifier.PRIVATE)
         val retrofit = "gene.retrofit.anno.retrofitProvider".topLevelFunc()
+
+        //接口实现Object类
         val objectBuilder = TypeSpec
             .objectBuilder("${dataStruct.fileName}NetSource")
             .addProperty(
@@ -115,16 +123,19 @@ class KspRetrofitSymbolProcessor(private val environment: SymbolProcessorEnviron
 //                    })
             )
 
+        //dto上的多个注解
         dataStructs.forEach {
             environment.logger.warn("generateNetService --> dataStructs:${it.netSourceAnnos}")
+            //dto上的多个注解
             it.netSourceAnnos.forEach { netSourceAnno ->
-                interfaceBuilder.addRestApiFunction(
-                    netSourceAnno, it.ksClass, netResultClass
+                val apiFunc = ApiFunc(environment, netSourceAnno, it.ksClass, netResultClass)
+                //interface接口类添加方法
+                interfaceBuilder.addFunction(
+                    apiFunc.buildApiAbstractFunc()
                 )
-                objectBuilder.addRestApiImplFunction(
-                    netSourceAnno, it.ksClass,
-                    netResultClass, retrofit,
-                    netApiClassName, exceptionClass
+                //Object类添加实现
+                objectBuilder.addFunction(
+                    apiFunc.buildApiImplFunc(retrofit, netApiClassName, exceptionClass)
                 )
             }
         }

@@ -15,7 +15,7 @@ buildscript {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
-    api("com.squareup.retrofit2:retrofit:2.5.0")
+    api("com.squareup.retrofit2:retrofit:3.0.0")
 }
 
 group = GroupIdMavenCentral

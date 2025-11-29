@@ -39,7 +39,7 @@ val String.lookDown: String
 val String.lookup: String
     get() = "👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆 $this 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆"
 
-fun KSClassDeclaration.fileName() = containingFile!!.fileName.removeSuffix(".kt")
+fun KSClassDeclaration.fileName() = containingFile!!.fileName.removeSuffix(".kt").removeSuffix(".java")
 
 //org.gradle.logging.level=info
 fun String.logInfo(logger: KSPLogger) {
