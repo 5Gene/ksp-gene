@@ -1,9 +1,9 @@
 #https://github.com/terrakok/kmp-awesome
 
 [versions]
-ksp = "2.0.20-1.0.25"
+ksp = "2.2.21-2.0.4"
 auto-service-anno = "1.1.1"
-squareup-poe = "1.18.0"
+squareup-poe = "2.2.0"
 
 [libraries]
 google-auto-service-anno = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service-anno" }
