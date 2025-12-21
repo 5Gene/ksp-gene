@@ -148,11 +148,11 @@ class ApiFunc(
                     if (params.isNotEmpty()) {
                         addLocalMapVariable("params", paramList)
                     }
-
+                    //"""${funcName}=>${'$'}{netResult.message()}"""
                     fun CodeBlockBuilder.returnBodyWithCheckResult() {
-                        """
+                        $$"""
 if (!netResult.isOk()) {
-    throw %T(netResult.code(), netResult.message())
+    throw %T(netResult.code(), "$${funcName}=>${netResult.message()}")
 }
 return netResult.body()
         """.trim().T(exception)
